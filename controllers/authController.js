@@ -12,7 +12,7 @@ const generateAndSendToken = (res, id) => {
   res.cookie(process.env.JWT_COOKIE_NAME, token, {
     maxAge: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "none",
     secure: process.env.NODE_ENV !== "development",
   });
 };
@@ -135,7 +135,7 @@ const getMe = async (req, res, next) => {
 
     const payload = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(payload.id).select('fullname email phone');
+    const user = await User.findById(payload.id).select("fullname email phone");
 
     if (!user) {
       return next(new AppError("User doesn't exist.", 404));
@@ -143,11 +143,10 @@ const getMe = async (req, res, next) => {
 
     res.status(200).json({
       status: "success",
-      data: user
+      data: user,
     });
-
   } catch (err) {
-    console.error('Error in getMe:', err);
+    console.error("Error in getMe:", err);
     next(err);
   }
 };
